@@ -21,6 +21,12 @@
     "country": "ES",
     "city": "Madrid",
     "currency": "EUR",
+    "amount": 9.9
+  },
+  {
+    "country": "ES",
+    "city": "Madrid",
+    "currency": "EUR",
     "amount": 8.9
   },
   {
