@@ -102,8 +102,8 @@ class DataHandler(object):
             )
         logging.debug(res)
         if not json_format:
-            pprint(res, indent=4)
-        print(json.dumps(res))
+            logging.debug(res)
+            return res
         return json.dumps(res)
 
     def item_amount(self, items, city):
