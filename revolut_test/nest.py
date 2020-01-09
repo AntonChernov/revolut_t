@@ -25,10 +25,13 @@ class DataHandler(object):
 
     def check_currency(self, cur):
         if isinstance(cur, str):
+            logging.debug('STR {0}'.format(cur))
             return cur.split(',')
         elif isinstance(cur, list):
+            logging.debug('list {0}'.format(cur))
             return cur
         else:
+            logging.debug('Bad {0}'.format(cur))
             raise TypeError('Unrecognized type of currency!')
 
     def file_exist(self, path):
