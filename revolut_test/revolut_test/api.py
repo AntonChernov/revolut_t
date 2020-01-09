@@ -16,11 +16,30 @@ from revolut_test.serializers import NestedListSerializer, NestedDataSerializer
 
 logger = logging.getLogger(__name__)
 
+
 class NestedView(APIView):
+    """
+    API for Nested
+    """
     permission_classes = (IsAuthenticated,)
     renderer_classes = [JSONRenderer]
 
     def post(self, request, *args, **kwargs):
+        """
+        Handle POST request
+        :param request: Request object
+        :type request:
+        :param args:
+        :type args:
+        :param kwargs:
+        :type kwargs:
+        :return: JSON response
+        :rtype:
+        """
+        # Try here not gud idea but for some reason
+        # DRF(Django rest framework) return empty OrderedDict after validation
+        # I believe problem related to newest version of Django(3.0.2)
+        # DRF just not handle all changes
         try:
             data_process = DataHandler(
                 file_path=request.data,
@@ -39,5 +58,18 @@ class NestedView(APIView):
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
+    """
+    Create Token object for user when user save()
+    :param sender:
+    :type sender:
+    :param instance:
+    :type instance:
+    :param created:
+    :type created:
+    :param kwargs:
+    :type kwargs:
+    :return:
+    :rtype:
+    """
     if created:
         Token.objects.create(user=instance)

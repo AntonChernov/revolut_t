@@ -13,6 +13,9 @@ logging.basicConfig(
 
 
 class DataHandler(object):
+    """
+    Class handle the job related to nested
+    """
 
     def __init__(
             self,
@@ -24,6 +27,13 @@ class DataHandler(object):
         logging.info('Path: {0}'.format(self.path_to_file))
 
     def check_currency(self, cur):
+        """
+
+        :param cur:
+        :type cur: str
+        :return: list of currency or TypeError
+        :rtype:
+        """
         if isinstance(cur, str):
             logging.debug('STR {0}'.format(cur))
             return cur.split(',')
@@ -35,6 +45,13 @@ class DataHandler(object):
             raise TypeError('Unrecognized type of currency!')
 
     def file_exist(self, path):
+        """
+        Check path if path is file return path if path it is list return list
+        :param path: path
+        :type path: str
+        :return: str or list or AttributeError
+        :rtype:
+        """
         if isinstance(path, str):
             _ = path if path else ''.join([os.path.curdir, '/data.json'])
             if os.path.exists(_) \
@@ -51,6 +68,11 @@ class DataHandler(object):
             raise AttributeError
 
     def data_file_reader(self):
+        """
+        Read file if self.path_to_file == str
+        :return: path to file or load the object(list of dicts in our case)
+        :rtype:
+        """
         if isinstance(self.path_to_file, str) and self.path_to_file:
             with open(self.path_to_file, 'r') as f:
                 readed_obj = f.read()
@@ -60,10 +82,23 @@ class DataHandler(object):
             return self.path_to_file
 
     def data_file_reader_pandas(self):
+        """
+        Read file use pandas lib
+        :return: DataFrame
+        :rtype:
+        """
         self.df = read_json(self.path_to_file, orient='records')
         logging.debug('DF: {0}'.format(self.df))
 
     def result_builder_pandas(self, json_format=None):
+        """
+        Build a result
+        :param json_format: None/something(True,1, 'asd' some not Null value)
+        :type json_format:
+        :return: If json_format --> response in json format
+                 if None usual dict format will be use
+        :rtype:
+        """
         res = {}
         for cur in self.currency:
             d = self.aggregated_data[
@@ -77,6 +112,46 @@ class DataHandler(object):
         return json.dumps(res)
 
     def result_builder(self, json_format=None):
+        """
+        Build result without anu helping libs python
+        :param json_format: json_format:
+        None/something(True,1, 'asd' some not Null value)
+        :type json_format:
+        :return: If json_format --> response in json format
+                 if None usual dict format will be use
+        :rtype:
+        :result example for: python nest.py --currency EUR,USD
+
+
+
+        {
+        'EUR': {
+            'FR': {
+                'Lyon': [
+                    {'amount': 11.4}]
+                },
+            'ES': {
+            'Madrid': [
+                {
+                    'amount': 9.9
+                },
+                {
+                    'amount': 8.9
+                }
+            ]
+            }
+            },
+            'USD': {
+                'US': {
+                    'Boston': [
+                        {
+                            'amount': 100
+                        }
+                    ]
+                }
+            }
+        }
+        """
         data = self.data_file_reader() #if not web else web
         logging.debug(data)
         res = {}
@@ -110,12 +185,28 @@ class DataHandler(object):
         return json.dumps(res)
 
     def item_amount(self, items, city):
+        """
+        HElp method for collect more then one amout base on currency and city
+        :param items: currency filtered items
+        :type items:
+        :param city: City name
+        :type city:
+        :return: list of amounts
+        :rtype:
+        """
         return [
             {'amount': item['amount']}
             for item in items if item['city'] == city
         ]
 
     def aggregate(self, data_frame):
+        """
+        Data aggregator based on Pandas lib
+        :param data_frame: pandas DataFrame
+        :type data_frame:
+        :return: List of Currencies with cities and amount for each city
+        :rtype:
+        """
         country_codes = data_frame['country'].unique()
         logging.debug('CC: {0}'.format(country_codes))
         result = {}
@@ -139,23 +230,10 @@ class DataHandler(object):
         logging.debug(result)
         return result
 
-    def data_aggregator(self):
-        r = self.df[
-            (self.df['country'].isin(['UK'])) &
-            (self.df['currency'].isin(['GBP', 'FBP'])) &
-            (self.df['city'].isin(['London']))
-        ]
-        logging.debug(r)
-        logging.debug(r.to_dict())
-
-    def correct_data_aggregator(self):
-        self.aggregated_data = self.df[self.df['currency'].isin(self.currency)]
-        logging.debug(self.aggregated_data)
-
 
 if __name__ == "__main__":
     """
-    currency country city
+    Entry point for CLI
     """
     input_args = argparse.ArgumentParser()
     input_args.add_argument(
@@ -175,8 +253,6 @@ if __name__ == "__main__":
     )
 
     args = input_args.parse_args()
-    print(args)
-    print(type(args))
     res = DataHandler(
         file_path=args.file_path,
         currency=args.currency,
