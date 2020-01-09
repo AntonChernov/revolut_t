@@ -34,6 +34,8 @@ class CLITests(unittest.TestCase):
             },
         ]
 
+        self.currencies = 'EUR,USD,GBP'
+
     def test_correct_data(self):
         d_builder = DataHandler(currency='EUR')
         res = d_builder.result_builder()
@@ -51,4 +53,10 @@ class CLITests(unittest.TestCase):
         with self.assertRaises(KeyError):
             res = d_builder.result_builder()
 
+    def test_several_currency(self):
+        d_builder = DataHandler(currency=self.currencies)
+        res = d_builder.result_builder()
+        r, c = list(res.keys()), self.currencies.split(',')
+        self.assertListEqual(r, c)
+        self.assertCountEqual(r, c)
 
